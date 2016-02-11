@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<style>
+		</style> 
+
+		<meta charset="utf8">
+		<title>Opening a SPIDER file</title>
+
+		<script type="text/javascript">
+			function main(){
+				document.getElementById('file-input').addEventListener('change', readSingleFile, false);
+			}
+
+			var sizeFloat = 4 ;
+			var defaultHeaderSize = 256 ;
+
+			function readSingleFile(e) {
+			  var file = e.target.files[0];
+			  if (!file) {
+			    return;
+			  }
+
+			  var reader = new FileReader();
+			  reader.onload = function(e) {
+			    var contents = e.target.result;
+			   	displayContents(contents);
+			  };
+			  reader.readAsArrayBuffer(file);
+			}	
+
+			function displayContents(contents) {
+				var imagePix = openImage(contents) ;
+			  	var element = document.getElementById('file-content');
+
+			  	var s = "" ;
+				for(var i = 0 ; i < imagePix.length ; i++) {
+					s = s.concat((i + 1) + " ") ;
+					for(var j = 0 ; j < imagePix[0].length ; j++) {
+						s = s.concat(imagePix[i][j] + " ") ;
+					}
+					s = s.concat("\n") ;
+				}
+			  element.innerHTML = s ;
+			}
+
+			function openImage(contents) {
+			  var pos = 0 ;
+			  var header = new DataView(contents, pos, defaultHeaderSize * sizeFloat) ;
+			  pos = defaultHeaderSize * sizeFloat;
+			  var fNsam = header.getFloat32(11 * sizeFloat) ;
+			  var fLabrec = header.getFloat32(12 * sizeFloat) ;
+			  console.log(fNsam + " et " + fLabrec) ;
+			  var headerSize = fNsam * fLabrec;
+
+			  //calculate the true header size
+			  if(headerSize != defaultHeaderSize) {
+			    pos = 0 ;
+			    header = new DataView(contents, pos, headerSize * sizeFloat) ;
+			    pos = headerSize * sizeFloat ;
+			  }
+
+			  var ncol = header.getFloat32(11 * sizeFloat) ; //number of pixels per row
+			  var nrow = header.getFloat32(1 * sizeFloat) ;  //number of rows
+
+			  var tmp = new DataView(contents, pos, nrow * ncol * sizeFloat) ;
+			  var res = new Array(nrow) ;
+			  console.log(header.length) ;
+			  console.log(nrow) ;
+			  console.log(ncol) ;
+			  pos = 0 ;
+			  for(var i = 0 ; i < nrow ; i++) {
+			    res[i] = new Array(ncol) ;
+			    for(var j = 0 ; j < ncol ; j++) {
+			      res[i][j] = tmp.getFloat32(pos * sizeFloat ) ;
+			      pos++ ;
+			    }
+			  }
+			  return res ;
+			}
+		</script>
+	</head>
+
+	<body onload ="main()">
+
+<input type="file" id="file-input" />
+<h3>Contents of the file:</h3>
+<pre id="file-content"></pre>
+
+</html>
