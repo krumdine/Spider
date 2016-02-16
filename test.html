@@ -85,9 +85,34 @@
 			  element.innerHTML = s ;
 			}
 
-			function displayContentsVolume(contents) {
+			function displayContentsVolume(contents,newValue) {
 				var imagePix = openVolume(contents) ;
+				//console.log(imagePix);				
+				var nligne = imagePix[0].length ;
+				var ncolonne = imagePix[0][0].length ;
+				console.log(imagePix[126]);
 			  	var element = document.getElementById('file-content');
+			  	// document.getElementById("range").innerHTML = newValue;
+
+			  	var c = document.getElementById("myCanvas");
+			  	var ctx = c.getContext('2d');
+
+			  	for(var i = 0 ; i < ncolonne ; i++) {
+			  		for (var j = 0; j < nligne; j++ ){
+				  	var pixel = Math.round(imagePix[126][j][i]*255);
+				  	if (pixel < 16){
+				  		hexString = "0" + pixel.toString(16);
+				  	}
+				  	else {
+				  		hexString = pixel.toString(16);
+				  	}
+				  	//console.log(hexString);
+				  	var hexadec = "#"+hexString+hexString+hexString ;
+				  	
+				  	ctx.fillStyle = hexadec;
+					ctx.fillRect(i,j,1,1);
+				}
+			}	
 
 			  	var s = "" ;
 			  	for(var k = 0 ; k < 2 ; k++) {
@@ -168,6 +193,7 @@
 				    	}
 				  	}
 				}
+				console.log(res);
 			  	return res ;
 			}			
 		</script>
@@ -180,6 +206,7 @@
 <h3>Contents of the file:</h3>
 <pre id="file-content"></pre> 
 
-<canvas id="myCanvas" width="300" height="300"></canvas> 
+<canvas id="myCanvas" width="600" height="600"></canvas> 
+<input type="range" min="0" max="256" value="0" step="1" />
 
 </html>
