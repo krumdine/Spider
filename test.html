@@ -8,182 +8,62 @@
 		<meta charset="utf8">
 		<title>Opening a SPIDER file</title>
 
+		<script src="spiderParser.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			function main(){
-				document.getElementById('file-input').addEventListener('change', readImage, false);
-				document.getElementById('file-input-2').addEventListener('change', readVolume, false);
-			}
+			var fileContents = [] ;
 
-			var sizeFloat = 4 ;
-			var defaultHeaderSize = 256 ;
+			function readFile() {
+				var type ;
 
-			function readImage(e) {
-			  var file = e.target.files[0];
-			  if (!file) {
-			    return;
-			  }
+				var typeRadio = document.forms.type ;
+				for(var i = 0 ; i < typeRadio.length ; i++)
+					if(typeRadio.type[i].checked==true)
+						type = typeRadio.type[i].value ;
 
-			  var reader = new FileReader();
-			  reader.onload = function(e) {
-			    var contents = e.target.result;
-			   	displayContents(contents);
-			  };
-			  reader.readAsArrayBuffer(file);
-			}
-
-			function readVolume(e) {
-			  var file = e.target.files[0];
-			  if (!file) {
-			    return;
-			  }
-
-			  var reader = new FileReader();
-			  reader.onload = function(e) {
-			    var contents = e.target.result;
-			   	displayContentsVolume(contents);
-			  };
-			  reader.readAsArrayBuffer(file);
-			}
-			
-			
-			function displayContents(contents) {
-				var imagePix = openImage(contents) ;
-				var ncolonne = imagePix.length ;
-				var nligne = imagePix[0].length ;
-			  	var element = document.getElementById('file-content');
-			  	var c = document.getElementById("myCanvas");
-			  	var ctx = c.getContext('2d');
-
-			  	for(var i = 0 ; i < ncolonne ; i++) {
-			  		for (var j = 0; j < nligne; j++ ){
-					  	var pixel = Math.round(imagePix[j][i]*255);
-					  	if (pixel < 16){
-					  		hexString = "0" + pixel.toString(16);
-					  	}
-					  	else {
-					  		hexString = pixel.toString(16);
-					  	}
-					  	//console.log(hexString);
-					  	var hexadec = "#"+hexString+hexString+hexString ;
-					  	
-					  	ctx.fillStyle = hexadec;
-						ctx.fillRect(i,j,1,1);
-					}
-				}			  
-
-			  	//var image = createImageData(256,256);
-			  	//console.log(image);
-			}
-
-			function displayContentsVolume(contents,newValue) {
-				var imagePix = openVolume(contents) ;
-				//console.log(imagePix);				
-				var nligne = imagePix[0].length ;
-				var ncolonne = imagePix[0][0].length ;
-				console.log(imagePix[126]);
-			  	var element = document.getElementById('file-content');
-			  	// document.getElementById("range").innerHTML = newValue;
-
-			  	var c = document.getElementById("myCanvas");
-			  	var ctx = c.getContext('2d');
-
-			  	for(var i = 0 ; i < ncolonne ; i++) {
-			  		for (var j = 0; j < nligne; j++ ){
-					  	var pixel = Math.round(imagePix[126][j][i]*255);
-					  	if (pixel < 16){
-					  		hexString = "0" + pixel.toString(16);
-					  	}
-					  	else {
-					  		hexString = pixel.toString(16);
-					  	}
-					  	//console.log(hexString);
-					  	var hexadec = "#"+hexString+hexString+hexString ;
-					  	
-					  	ctx.fillStyle = hexadec;
-						ctx.fillRect(i,j,1,1);
-					}
+				var file = document.getElementById('file-input').files[0];
+				if(!file) {
+					alert('aucun fichier Sélectionner') ;
+					return ;
 				}
+
+				readSpiderFile(file, type, callback) ;
 			}
 
-			function openImage(contents) {
-			  var pos = 0 ;
-			  var header = new DataView(contents, pos, defaultHeaderSize * sizeFloat) ;
-			  pos = defaultHeaderSize * sizeFloat;
-			  var fNsam = header.getFloat32(11 * sizeFloat) ;
-			  var fLabrec = header.getFloat32(12 * sizeFloat) ;
-			  console.log(fNsam + " et " + fLabrec) ;
-			  var headerSize = fNsam * fLabrec;
-
-			  //calculate the true header size
-			  if(headerSize != defaultHeaderSize) {
-			    pos = 0 ;
-			    header = new DataView(contents, pos, headerSize * sizeFloat) ;
-			    pos = headerSize * sizeFloat ;
-			  }
-
-			  var ncol = header.getFloat32(11 * sizeFloat) ; //number of pixels per row
-			  var nrow = header.getFloat32(1 * sizeFloat) ;  //number of rows
-
-			  var tmp = new DataView(contents, pos, nrow * ncol * sizeFloat) ;
-			  var res = new Array(nrow) ;
-			  pos = 0 ;
-			  for(var i = 0 ; i < nrow ; i++) {
-			    res[i] = new Array(ncol) ;
-			    for(var j = 0 ; j < ncol ; j++) {
-			      res[i][j] = tmp.getFloat32(pos * sizeFloat ) ;
-			      pos++ ;
-			    }
-			  }
-			  return res ;
-			}
-
-			function openVolume(contents) {
-			  	var pos = 0 ;
-			  	var header = new DataView(contents, pos, defaultHeaderSize * sizeFloat) ;
-			  	pos = defaultHeaderSize * sizeFloat;
-			  	var fNsam = header.getFloat32(11 * sizeFloat) ;
-			  	var fLabrec = header.getFloat32(12 * sizeFloat) ;
-			  	var headerSize = fNsam * fLabrec;
-
-			  	//calculate the true header size
-			  	if(headerSize != defaultHeaderSize) {
-			   		pos = 0 ;
-			    	header = new DataView(contents, pos, headerSize * sizeFloat) ;
-			    	pos = headerSize * sizeFloat ;
-			  	}
-
-			  	var ncol = header.getFloat32(11 * sizeFloat) ; //number of pixels per row
-			  	var nslice = header.getFloat32(0 * sizeFloat) ;  //number of rows
-			  	var nrow = header.getFloat32(1 * sizeFloat) ; //number of images
-			  	console.log( ncol + " " + nrow + " " + nslice) ;
-
-			  	var tmp = new DataView(contents, pos, nslice * nrow * ncol * sizeFloat) ;
-			  	var res = new Array(nslice) ;
-			  	pos = 0 ;
-			  	for(var k = 0 ; k < nslice ; k++) {
-			  		res[k] = new Array(nrow) ;
-				  	for(var i = 0 ; i < nrow ; i++) {
-				    	res[k][i] = new Array(ncol) ;
-				    	for(var j = 0 ; j < ncol ; j++) {
-				      		res[k][i][j] = tmp.getFloat32(pos * sizeFloat ) ;
-				      		pos++ ;
-				    	}
-				  	}
+			function callback(imagePix, type) {
+				fileContents = imagePix ;
+				if(type === 'stack') {
+					displayImage(fileContents[0], document.getElementById("myCanvas")) ;
+					var slide = document.getElementById("slide") ;
+					slide.min = 1 ;
+					slide.max = fileContents.length ;
 				}
-				console.log(res);
-			  	return res ;
-			}			
+				else
+					displayImage(fileContents, document.getElementById("myCanvas")) ;
+			}
+
+			function updateImage(newValue){
+				var slidevalue = document.getElementById("slidevalue") ;
+				slidevalue.value = newValue;
+				slidevalue.innerHTML = "Image : " + slidevalue.value ;
+				displayImage(fileContents[slidevalue.value - 1] , document.getElementById("myCanvas")) ;
+			}
 		</script>
 	</head>
 
-	<body onload ="main()">
+	Sélectionner le fichier SPIDER : <input type="file" id="file-input" accept="image/spi" /><br>
 
-<input type="file" id="file-input" />
-<input type="file" id="file-input-2" />
-<h3>Contents of the file:</h3>
-<pre id="file-content"></pre> 
+	<form name="type">
+		<input type="radio" name="type" value="image" checked> Ouvrir une seule image SPIDER<br>
+		<input type="radio" name="type" value="stack"> Ouvrir une pile d'images SPIDER<br>
+	</form>
 
-<canvas id="myCanvas" width="600" height="600"></canvas> 
-<input type="range" min="0" max="256" value="0" step="1" />
+  	<input type="button" onclick="readFile()" value="Valider">
+
+	<h3>Displaying image</h3>
+	<canvas id="myCanvas" width="0" height="0"></canvas> 
+
+	<center><input id="slide" type="range"  min="0" max="0" step="1" onchange="updateImage(this.value)"/><br>
+	<label id="slidevalue" for="value">Image : 1</label>
+	</center>
 
 </html>
