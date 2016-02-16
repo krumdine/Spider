@@ -3,9 +3,13 @@ var defaultHeaderSize = 256 ;
 
 "use strict" ;
 
-//the callback take two parameters
-//the first one is the file values (an array of pixel in 2 or 3 dimensions) 
-//the second one is the file type ('image' or 'stack').
+/**
+ * @param {Blob} file File to read from.
+ * @param {string} type Type of the file, 'image' if the file describe a single image, 'stack' if it describes a stack.
+ * @param {function} callback The function to execute after reading the file, it take two parameters :
+ *		- imagePix : the pixels of the image(s), it is a 2d array if the type is 'image', if the type is 'stack' it is a 3d array.
+ *		- type : the type of the file.
+ */
 function readSpiderFile(file, type, callback) {
 	var reader = new FileReader();
 
@@ -18,6 +22,11 @@ function readSpiderFile(file, type, callback) {
 	reader.readAsArrayBuffer(file);
 }
 
+/**
+ * @param {File} Contents A SPIDER file content to extract the pixels from.
+ * @param {string} type Type of the file, 'image' if the file describe a single image, 'stack' if it describes a stack.
+ * @return The pixels of the image(s).
+ */
 function getContents(contents, type) {
 	var pos = 0 ;
 	var header = new DataView(contents, pos, defaultHeaderSize * sizeFloat) ;
@@ -75,8 +84,12 @@ function getContents(contents, type) {
 		console.log("unknown file type") ;
 		fileContents = undefined ;
 	}
-}		
-					
+}
+
+/**
+ * @param {Array[Array]} imagePix A 2d array containing the pixels of an image.
+ * @param {Canvas} canvas The canvas to put the image in.
+ */			
 function displayImage(imagePix, canvas) {
 	var ncolonne = imagePix.length ;
 	var nligne = imagePix[0].length ;
