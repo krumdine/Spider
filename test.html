@@ -56,33 +56,23 @@
 
 			  	for(var i = 0 ; i < ncolonne ; i++) {
 			  		for (var j = 0; j < nligne; j++ ){
-				  	var pixel = Math.round(imagePix[j][i]*255);
-				  	if (pixel < 16){
-				  		hexString = "0" + pixel.toString(16);
-				  	}
-				  	else {
-				  		hexString = pixel.toString(16);
-				  	}
-				  	//console.log(hexString);
-				  	var hexadec = "#"+hexString+hexString+hexString ;
-				  	
-				  	ctx.fillStyle = hexadec;
-					ctx.fillRect(i,j,1,1);
-				}
-			}			  
+					  	var pixel = Math.round(imagePix[j][i]*255);
+					  	if (pixel < 16){
+					  		hexString = "0" + pixel.toString(16);
+					  	}
+					  	else {
+					  		hexString = pixel.toString(16);
+					  	}
+					  	//console.log(hexString);
+					  	var hexadec = "#"+hexString+hexString+hexString ;
+					  	
+					  	ctx.fillStyle = hexadec;
+						ctx.fillRect(i,j,1,1);
+					}
+				}			  
 
 			  	//var image = createImageData(256,256);
 			  	//console.log(image);
-
-			  	var s = "" ;
-				for(var i = 0 ; i < imagePix.length ; i++) {
-					s = s.concat((i + 1) + " ") ;
-					for(var j = 0 ; j < imagePix[0].length ; j++) {
-						s = s.concat(imagePix[i][j] + " ") ;
-					}
-					s = s.concat("\n") ;
-				}
-			  element.innerHTML = s ;
 			}
 
 			function displayContentsVolume(contents,newValue) {
@@ -99,33 +89,20 @@
 
 			  	for(var i = 0 ; i < ncolonne ; i++) {
 			  		for (var j = 0; j < nligne; j++ ){
-				  	var pixel = Math.round(imagePix[126][j][i]*255);
-				  	if (pixel < 16){
-				  		hexString = "0" + pixel.toString(16);
-				  	}
-				  	else {
-				  		hexString = pixel.toString(16);
-				  	}
-				  	//console.log(hexString);
-				  	var hexadec = "#"+hexString+hexString+hexString ;
-				  	
-				  	ctx.fillStyle = hexadec;
-					ctx.fillRect(i,j,1,1);
-				}
-			}	
-
-			  	var s = "" ;
-			  	for(var k = 0 ; k < 2 ; k++) {
-			  		s = s.concat("image n° " + (k + 1) + "\n") ;
-					for(var i = 0 ; i < imagePix[k].length ; i++) {
-						s = s.concat((i + 1) + " ") ;
-						for(var j = 0 ; j < imagePix[k][i].length ; j++) {
-							s = s.concat(imagePix[k][i][j] + " ") ;
-						}
-						s = s.concat("\n") ;
+					  	var pixel = Math.round(imagePix[126][j][i]*255);
+					  	if (pixel < 16){
+					  		hexString = "0" + pixel.toString(16);
+					  	}
+					  	else {
+					  		hexString = pixel.toString(16);
+					  	}
+					  	//console.log(hexString);
+					  	var hexadec = "#"+hexString+hexString+hexString ;
+					  	
+					  	ctx.fillStyle = hexadec;
+						ctx.fillRect(i,j,1,1);
 					}
 				}
-			  element.innerHTML = s ;
 			}
 
 			function openImage(contents) {
@@ -176,8 +153,8 @@
 			  	}
 
 			  	var ncol = header.getFloat32(11 * sizeFloat) ; //number of pixels per row
-			  	var nrow = header.getFloat32(0 * sizeFloat) ;  //number of rows
-			  	var nslice = header.getFloat32(1 * sizeFloat) ; //number of images
+			  	var nslice = header.getFloat32(0 * sizeFloat) ;  //number of rows
+			  	var nrow = header.getFloat32(1 * sizeFloat) ; //number of images
 			  	console.log( ncol + " " + nrow + " " + nslice) ;
 
 			  	var tmp = new DataView(contents, pos, nslice * nrow * ncol * sizeFloat) ;
