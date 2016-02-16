@@ -44,10 +44,35 @@
 			  };
 			  reader.readAsArrayBuffer(file);
 			}
-
+			
+			
 			function displayContents(contents) {
 				var imagePix = openImage(contents) ;
+				var ncolonne = imagePix.length ;
+				var nligne = imagePix[0].length ;
 			  	var element = document.getElementById('file-content');
+			  	var c = document.getElementById("myCanvas");
+			  	var ctx = c.getContext('2d');
+
+			  	for(var i = 0 ; i < ncolonne ; i++) {
+			  		for (var j = 0; j < nligne; j++ ){
+				  	var pixel = Math.round(imagePix[j][i]*255);
+				  	if (pixel < 16){
+				  		hexString = "0" + pixel.toString(16);
+				  	}
+				  	else {
+				  		hexString = pixel.toString(16);
+				  	}
+				  	//console.log(hexString);
+				  	var hexadec = "#"+hexString+hexString+hexString ;
+				  	
+				  	ctx.fillStyle = hexadec;
+					ctx.fillRect(i,j,1,1);
+				}
+			}			  
+
+			  	//var image = createImageData(256,256);
+			  	//console.log(image);
 
 			  	var s = "" ;
 				for(var i = 0 ; i < imagePix.length ; i++) {
@@ -153,6 +178,8 @@
 <input type="file" id="file-input" />
 <input type="file" id="file-input-2" />
 <h3>Contents of the file:</h3>
-<pre id="file-content"></pre>
+<pre id="file-content"></pre> 
+
+<canvas id="myCanvas" width="300" height="300"></canvas> 
 
 </html>
